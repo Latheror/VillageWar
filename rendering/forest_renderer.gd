@@ -1,6 +1,6 @@
 class_name ForestRenderer
 
-const Constants = preload("res://constants.gd")
+const Constants = preload("res://data/constants.gd")
 
 # -------------------------
 # Draw forest trees
