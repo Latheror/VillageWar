@@ -65,9 +65,12 @@ static func create_tile(x: int, y: int, half: float, noise: FastNoiseLite) -> Ti
 	elif height < Constants.PLAIN_THRESHOLD:
 		biome = Constants.Biome.PLAIN
 		color = Color(0.1, 0.7, 0.2)
-	else:
+	elif height < Constants.HIGH_MOUNTAIN_THRESHOLD:
 		biome = Constants.Biome.MOUNTAIN
 		color = Color(0.45, 0.35, 0.25)
+	else:
+		biome = Constants.Biome.HIGH_MOUNTAIN
+		color = Color(0.5, 0.5, 0.5)
 
 	# Set fixed height based on biome
 	var tile_height: float
@@ -77,8 +80,10 @@ static func create_tile(x: int, y: int, half: float, noise: FastNoiseLite) -> Ti
 		tile_height = Constants.SAND_HEIGHT
 	elif biome == Constants.Biome.PLAIN:
 		tile_height = Constants.PLAIN_HEIGHT
-	else:  # mountain
+	elif biome == Constants.Biome.MOUNTAIN:
 		tile_height = Constants.MOUNTAIN_HEIGHT
+	else:  # high_mountain
+		tile_height = Constants.HIGH_MOUNTAIN_HEIGHT
 
 	return Tile.new(x, y, tile_height, biome, color)
 

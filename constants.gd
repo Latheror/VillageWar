@@ -20,15 +20,17 @@ const DETAIL_FREQ: float = 0.08
 const DETAIL_MULT: float = 4.0
 
 # --- Biomes ---
-const DEEP_WATER_THRESHOLD: float = -3.0
+const DEEP_WATER_THRESHOLD: float = -5.0
 const WATER_THRESHOLD: float = 0.0
 const SAND_THRESHOLD: float = 3.0
 const PLAIN_THRESHOLD: float = 9.0
+const HIGH_MOUNTAIN_THRESHOLD: float = 15.0
 
 # --- Fixed Heights for Flat Biomes ---
 const SAND_HEIGHT: float = 1.0
 const PLAIN_HEIGHT: float = 2.0
 const MOUNTAIN_HEIGHT: float = 4.0
+const HIGH_MOUNTAIN_HEIGHT: float = 6.0
 
 # --- Villages ---
 const VILLAGE_COUNT: int = 4
@@ -40,5 +42,6 @@ enum Biome {
 	WATER,
 	SAND,
 	PLAIN,
-	MOUNTAIN
+	MOUNTAIN,
+	HIGH_MOUNTAIN
 }
