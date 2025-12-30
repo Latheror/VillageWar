@@ -3,6 +3,7 @@ extends Node3D
 const Constants = preload("res://constants.gd")
 const MapGenerator = preload("res://map_generator.gd")
 const Tile = preload("res://tile.gd")
+const ForestRenderer = preload("res://forest_renderer.gd")
 
 var tiles: Array = []
 
@@ -18,12 +19,12 @@ func _ready() -> void:
 # -------------------------
 func _render_map() -> void:
 	for tile in tiles:
-		_draw_tile(tile.x, tile.y, Constants.TILE_SIZE, tile.color, tile.height, tile.village_id)
+		_draw_tile(tile.x, tile.y, Constants.TILE_SIZE, tile.color, tile.height, tile.biome, tile.village_id)
 
 # -------------------------
 # Draw 3D tile
 # -------------------------
-func _draw_tile(x: int, y: int, tile_size: float, color: Color, height: float, village_id: int = 0) -> void:
+func _draw_tile(x: int, y: int, tile_size: float, color: Color, height: float, biome: int, village_id: int = 0) -> void:
 	var mesh_instance = MeshInstance3D.new()
 	var box_mesh = BoxMesh.new()
 	box_mesh.size = Vector3(tile_size, height, tile_size)
@@ -38,6 +39,10 @@ func _draw_tile(x: int, y: int, tile_size: float, color: Color, height: float, v
 
 	mesh_instance.position = Vector3(x * tile_size, height / 2.0, y * tile_size)
 	add_child(mesh_instance)
+
+	# Add trees for forests
+	if biome == Constants.Biome.FOREST:
+		ForestRenderer.draw_forest_trees(self, x, y, height)
 
 	# Add laser for villages
 	if village_id > 0:

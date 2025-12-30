@@ -37,11 +37,19 @@ const VILLAGE_COUNT: int = 4
 const MIN_VILLAGE_DISTANCE: float = 8.0  # minimum distance between villages in tiles
 const VILLAGE_COLOR: Color = Color(1.0, 0.0, 0.0)  # red for villages
 
+# --- Forests ---
+const FOREST_SEED_CHANCE: float = 0.08  # Chance for a plain tile to start a forest patch
+const FOREST_MIN_SIZE: int = 3     # Minimum tiles per forest patch
+const FOREST_MAX_SIZE: int = 12    # Maximum tiles per forest patch
+const FOREST_HEIGHT: float = 2.0   # Height for forest tiles (same as plains)
+const FOREST_COLOR: Color = Color(0.0, 0.4, 0.1)  # Dark green for forests
+
 enum Biome {
 	DEEP_WATER,
 	WATER,
 	SAND,
 	PLAIN,
+	FOREST,
 	MOUNTAIN,
 	HIGH_MOUNTAIN
 }

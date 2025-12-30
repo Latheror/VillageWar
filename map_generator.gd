@@ -28,6 +28,10 @@ static func generate_map() -> Array:
 		var tile_height = get_tile_height(biome)
 		var tile = Tile.new(raw.x, raw.y, tile_height, biome, color)
 		tiles.append(tile)
+	
+	# Third pass: add forests on plain tiles
+	place_forests(tiles)
+	
 	return tiles
 
 static func scale_heights(raw_tiles: Array) -> void:
@@ -106,6 +110,8 @@ static func get_biome_color(biome: int) -> Color:
 			return Color(0.9, 0.8, 0.5)
 		Constants.Biome.PLAIN:
 			return Color(0.1, 0.7, 0.2)
+		Constants.Biome.FOREST:
+			return Constants.FOREST_COLOR
 		Constants.Biome.MOUNTAIN:
 			return Color(0.45, 0.35, 0.25)
 		Constants.Biome.HIGH_MOUNTAIN:
@@ -121,6 +127,8 @@ static func get_tile_height(biome: int) -> float:
 			return Constants.SAND_HEIGHT
 		Constants.Biome.PLAIN:
 			return Constants.PLAIN_HEIGHT
+		Constants.Biome.FOREST:
+			return Constants.FOREST_HEIGHT
 		Constants.Biome.MOUNTAIN:
 			return Constants.MOUNTAIN_HEIGHT
 		Constants.Biome.HIGH_MOUNTAIN:
@@ -151,3 +159,67 @@ static func place_villages(tiles: Array) -> void:
 				placed_villages.append(random_tile)
 				break
 			attempts += 1
+
+static func place_forests(tiles: Array) -> void:
+	# Get all plain tiles
+	var plain_tiles: Array = []
+	for tile in tiles:
+		if tile.biome == Constants.Biome.PLAIN:
+			plain_tiles.append(tile)
+	
+	if plain_tiles.size() == 0:
+		return
+	
+	# Create forest patches probabilistically
+	var used_tiles: Array = []
+	
+	# Shuffle plain tiles to randomize processing order
+	plain_tiles.shuffle()
+	
+	for plain_tile in plain_tiles:
+		# Skip if already used in a forest patch
+		if used_tiles.has(plain_tile):
+			continue
+		
+		# Chance to start a forest patch
+		if randf() < Constants.FOREST_SEED_CHANCE:
+			# Determine patch size
+			var patch_size = randi() % (Constants.FOREST_MAX_SIZE - Constants.FOREST_MIN_SIZE + 1) + Constants.FOREST_MIN_SIZE
+			
+			# Grow the forest patch
+			var patch_tiles: Array = [plain_tile]
+			used_tiles.append(plain_tile)
+			
+			while patch_tiles.size() < patch_size and plain_tiles.size() > 0:
+				# Find neighbors of current patch
+				var neighbors: Array = []
+				for patch_tile in patch_tiles:
+					# Check all 4 adjacent tiles
+					var directions = [
+						Vector2(0, 1), Vector2(0, -1), Vector2(1, 0), Vector2(-1, 0)
+					]
+					for dir in directions:
+						var neighbor_x = patch_tile.x + dir.x
+						var neighbor_y = patch_tile.y + dir.y
+						
+						# Find the neighbor tile
+						for tile in plain_tiles:
+							if tile.x == neighbor_x and tile.y == neighbor_y and not used_tiles.has(tile):
+								neighbors.append(tile)
+								break
+				
+				if neighbors.size() == 0:
+					break
+				
+				# Pick a random neighbor to add
+				var neighbor_index = randi() % neighbors.size()
+				var new_tile = neighbors[neighbor_index]
+				
+				patch_tiles.append(new_tile)
+				used_tiles.append(new_tile)
+			
+			# Convert patch tiles to forest
+			for tile in patch_tiles:
+				tile.biome = Constants.Biome.FOREST
+				tile.color = Constants.FOREST_COLOR
+				tile.height = Constants.FOREST_HEIGHT
