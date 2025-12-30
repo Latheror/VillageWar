@@ -41,18 +41,27 @@ const VILLAGE_COLOR: Color = Color(1.0, 0.0, 0.0)  # red for villages
 
 # --- Forests ---
 const FOREST_SEED_CHANCE: float = 0.08  # Chance for a plain tile to start a forest patch
-const FOREST_MIN_SIZE: int = 3     # Minimum tiles per forest patch
-const FOREST_MAX_SIZE: int = 12    # Maximum tiles per forest patch
 const FOREST_HEIGHT: float = 2.0   # Height for forest tiles (same as plains)
 const FOREST_COLOR: Color = Color(0.0, 0.4, 0.1)  # Dark green for forests
 const SNOW_COLOR: Color = Color(1.0, 1.0, 1.0)    # White for snow
+
+# --- Resources ---
+const FISH_SPAWN_CHANCE: float = 0.05  # Chance for a water tile to have fish
+const FOREST_SPAWN_CHANCE: float = 0.08  # Chance for a plain tile to have forest
+const FOREST_MIN_SIZE: int = 3     # Minimum tiles per forest patch
+const FOREST_MAX_SIZE: int = 12    # Maximum tiles per forest patch
+
+enum ResourceType {
+	NONE,
+	FISH,
+	FOREST
+}
 
 enum Biome {
 	DEEP_WATER,
 	WATER,
 	SAND,
 	PLAIN,
-	FOREST,
 	MOUNTAIN,
 	HIGH_MOUNTAIN,
 	SNOW

@@ -6,7 +6,7 @@ const ForestRenderer = preload("res://rendering/forest_renderer.gd")
 # -------------------------
 # Render a single tile
 # -------------------------
-static func render_tile(parent_node: Node, x: int, y: int, tile_size: float, color: Color, height: float, biome: int, village_id: int = 0) -> void:
+static func render_tile(parent_node: Node, x: int, y: int, tile_size: float, color: Color, height: float, biome: int, village_id: int = 0, resource: int = 0) -> void:
 	# Create the base tile mesh
 	var mesh_instance = MeshInstance3D.new()
 	var box_mesh = BoxMesh.new()
@@ -24,12 +24,16 @@ static func render_tile(parent_node: Node, x: int, y: int, tile_size: float, col
 	parent_node.add_child(mesh_instance)
 
 	# Add biome-specific features
-	if biome == Constants.Biome.FOREST:
+	if resource == Constants.ResourceType.FOREST:
 		ForestRenderer.draw_forest_trees(parent_node, x, y, height)
 
 	# Add village laser if needed
 	if village_id > 0:
 		_draw_village_laser(parent_node, x, y, height)
+
+	# Add resources
+	if resource == Constants.ResourceType.FISH:
+		_draw_fish(parent_node, x, y, height)
 
 # -------------------------
 # Draw village laser
@@ -60,3 +64,28 @@ static func _draw_village_laser(parent_node: Node, x: int, y: int, tile_height: 
 	laser_light.omni_range = 5.0
 	laser_light.position = Vector3(x * Constants.TILE_SIZE, tile_height + 10.0, y * Constants.TILE_SIZE)
 	parent_node.add_child(laser_light)
+
+# -------------------------
+# Draw fish resource
+# -------------------------
+static func _draw_fish(parent_node: Node, x: int, y: int, tile_height: float) -> void:
+	# Create a simple fish shape using a capsule
+	var fish = MeshInstance3D.new()
+	var capsule_mesh = CapsuleMesh.new()
+	capsule_mesh.radius = 0.15
+	capsule_mesh.height = 0.4
+	
+	var fish_material = StandardMaterial3D.new()
+	fish_material.albedo_color = Color(0.8, 0.6, 0.2)  # orange fish
+	fish.material_override = fish_material
+	fish.mesh = capsule_mesh
+	
+	# Position fish slightly above water surface
+	var base_x = x * Constants.TILE_SIZE
+	var base_z = y * Constants.TILE_SIZE
+	fish.position = Vector3(base_x, tile_height + 0.3, base_z)
+	
+	# Add some random rotation for variety
+	fish.rotation_degrees = Vector3(0, randf() * 360, 0)
+	
+	parent_node.add_child(fish)

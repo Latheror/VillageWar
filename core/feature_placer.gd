@@ -3,13 +3,13 @@ class_name FeaturePlacer
 const Constants = preload("res://data/constants.gd")
 
 # -------------------------
-# Place forest patches on plain tiles
+# Place forest patches on plain tiles as resources
 # -------------------------
 static func place_forests(tiles: Array) -> void:
-	# Get all plain tiles
+	# Get all plain tiles without existing resources
 	var plain_tiles: Array = []
 	for tile in tiles:
-		if tile.biome == Constants.Biome.PLAIN:
+		if tile.biome == Constants.Biome.PLAIN and tile.resource == Constants.ResourceType.NONE:
 			plain_tiles.append(tile)
 
 	if plain_tiles.size() == 0:
@@ -24,7 +24,7 @@ static func place_forests(tiles: Array) -> void:
 			continue
 
 		# Chance to start a forest patch
-		if randf() < Constants.FOREST_SEED_CHANCE:
+		if randf() < Constants.FOREST_SPAWN_CHANCE:
 			# Determine patch size
 			var patch_size = randi() % (Constants.FOREST_MAX_SIZE - Constants.FOREST_MIN_SIZE + 1) + Constants.FOREST_MIN_SIZE
 
@@ -59,11 +59,9 @@ static func place_forests(tiles: Array) -> void:
 				patch_tiles.append(new_tile)
 				used_tiles.append(new_tile)
 
-			# Convert patch tiles to forest
+			# Add forest resource to patch tiles
 			for tile in patch_tiles:
-				tile.biome = Constants.Biome.FOREST
-				tile.color = Constants.FOREST_COLOR
-				tile.height = Constants.FOREST_HEIGHT
+				tile.resource = Constants.ResourceType.FOREST
 
 # -------------------------
 # Place villages on land tiles
@@ -91,3 +89,13 @@ static func place_villages(tiles: Array) -> void:
 				placed_villages.append(random_tile)
 				break
 			attempts += 1
+
+# -------------------------
+# Place resources on tiles
+# -------------------------
+static func place_resources(tiles: Array) -> void:
+	for tile in tiles:
+		# Place fish on water tiles
+		if tile.biome == Constants.Biome.WATER or tile.biome == Constants.Biome.DEEP_WATER:
+			if randf() < Constants.FISH_SPAWN_CHANCE:
+				tile.resource = Constants.ResourceType.FISH

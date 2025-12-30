@@ -35,5 +35,6 @@ static func generate_map() -> Array:
 	# Third pass: add features (forests and villages)
 	FeaturePlacer.place_forests(tiles)
 	FeaturePlacer.place_villages(tiles)
+	FeaturePlacer.place_resources(tiles)
 
 	return tiles

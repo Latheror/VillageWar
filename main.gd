@@ -18,7 +18,7 @@ func _ready() -> void:
 # -------------------------
 func _render_map() -> void:
 	for tile in tiles:
-		TileRenderer.render_tile(self, tile.x, tile.y, Constants.TILE_SIZE, tile.color, tile.height, tile.biome, tile.village_id)
+		TileRenderer.render_tile(self, tile.x, tile.y, Constants.TILE_SIZE, tile.color, tile.height, tile.biome, tile.village_id, tile.resource)
 
 # -------------------------
 # Camera setup

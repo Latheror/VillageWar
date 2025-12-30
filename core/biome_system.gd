@@ -34,8 +34,6 @@ static func get_biome_color(biome: int) -> Color:
 			return Color(0.9, 0.8, 0.5)
 		Constants.Biome.PLAIN:
 			return Color(0.1, 0.7, 0.2)
-		Constants.Biome.FOREST:
-			return Constants.FOREST_COLOR
 		Constants.Biome.MOUNTAIN:
 			return Color(0.45, 0.35, 0.25)
 		Constants.Biome.HIGH_MOUNTAIN:
@@ -56,8 +54,6 @@ static func get_biome_height(biome: int) -> float:
 			return Constants.SAND_HEIGHT
 		Constants.Biome.PLAIN:
 			return Constants.PLAIN_HEIGHT
-		Constants.Biome.FOREST:
-			return Constants.FOREST_HEIGHT
 		Constants.Biome.MOUNTAIN:
 			return Constants.MOUNTAIN_HEIGHT
 		Constants.Biome.HIGH_MOUNTAIN:
