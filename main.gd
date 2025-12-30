@@ -1,7 +1,7 @@
-extends Node2D
+extends Node3D
 
 const SIZE: int = 30
-const TILE_SIZE: float = 32.0
+const TILE_SIZE: float = 1.0  # In 3D, 1 unit per tile
 
 # --- Island shape ---
 const SHAPE_FREQ: float = 0.05
@@ -17,6 +17,7 @@ const EDGE_POWER: float = 6.0
 const BASE_HEIGHT: float = 18.0
 const DETAIL_FREQ: float = 0.08
 const DETAIL_MULT: float = 4.0
+const HEIGHT_SCALE: float = 0.1
 
 # --- Biomes ---
 const DEEP_WATER_THRESHOLD: float = -6.0
@@ -64,7 +65,7 @@ func _ready() -> void:
 
 			# Skip tiles that are basically water or near edges
 			if land_factor <= 0.0 or edge_mask > 0.95:
-				_draw_tile(x, y, TILE_SIZE, Color(0.0, 0.0, 0.4))
+				_draw_tile(x, y, TILE_SIZE, Color(0.0, 0.0, 0.4), 0.1)
 				continue
 
 			# -------------------------
@@ -86,23 +87,33 @@ func _ready() -> void:
 			# Biomes
 			# -------------------------
 			var color: Color
+			var tile_height: float = 0.1  # default for water
 			if height < DEEP_WATER_THRESHOLD:
 				color = Color(0.0, 0.0, 0.4)
 			elif height < WATER_THRESHOLD:
 				color = Color(0.0, 0.3, 0.8)
-			elif height < SAND_THRESHOLD and land_factor > 0.0:
-				color = Color(0.9, 0.8, 0.5)  # sand
-			elif height < PLAIN_THRESHOLD:
-				color = Color(0.1, 0.7, 0.2)  # plains
 			else:
-				color = Color(0.45, 0.35, 0.25)  # mountains
+				# Land
+				tile_height = max(height * HEIGHT_SCALE, 0.1)
+				if height < SAND_THRESHOLD:
+					color = Color(0.9, 0.8, 0.5)  # sand
+				elif height < PLAIN_THRESHOLD:
+					color = Color(0.1, 0.7, 0.2)  # plains
+				else:
+					color = Color(0.45, 0.35, 0.25)  # mountains
 
-			_draw_tile(x, y, TILE_SIZE, color)
+			_draw_tile(x, y, TILE_SIZE, color, tile_height)
 
 
-func _draw_tile(x: int, y: int, tile_size: float, color: Color) -> void:
-	var rect: ColorRect = ColorRect.new()
-	rect.size = Vector2(tile_size, tile_size)
-	rect.position = Vector2(x * tile_size, y * tile_size)
-	rect.color = color
-	add_child(rect)
+func _draw_tile(x: int, y: int, tile_size: float, color: Color, height: float) -> void:
+	var mesh_instance = MeshInstance3D.new()
+	var box_mesh = BoxMesh.new()
+	box_mesh.size = Vector3(tile_size, height, tile_size)
+	mesh_instance.mesh = box_mesh
+	
+	var material = StandardMaterial3D.new()
+	material.albedo_color = color
+	mesh_instance.material_override = material
+	
+	mesh_instance.position = Vector3(x * tile_size, height / 2, y * tile_size)
+	add_child(mesh_instance)
