@@ -45,7 +45,7 @@ const FOREST_MIN_SIZE: int = 3     # Minimum tiles per forest patch
 const FOREST_MAX_SIZE: int = 12    # Maximum tiles per forest patch
 const FOREST_HEIGHT: float = 2.0   # Height for forest tiles (same as plains)
 const FOREST_COLOR: Color = Color(0.0, 0.4, 0.1)  # Dark green for forests
-const SNOW_COLOR: Color = Color(1, 1, 1.0)    # White for snow
+const SNOW_COLOR: Color = Color(1.0, 1.0, 1.0)    # White for snow
 
 enum Biome {
 	DEEP_WATER,

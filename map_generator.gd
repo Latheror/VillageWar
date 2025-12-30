@@ -40,7 +40,7 @@ static func scale_heights(raw_tiles: Array) -> void:
 		heights.append(raw.height)
 	var min_h: float = heights.min()
 	var max_h: float = heights.max()
-	var desired_min: float = Constants.DEEP_WATER_THRESHOLD - 1.0s
+	var desired_min: float = Constants.DEEP_WATER_THRESHOLD - 1.0
 	var desired_max: float = Constants.SNOW_THRESHOLD + 1.0
 	if max_h == min_h:
 		# If all heights are the same, set min to desired_min and max to desired_max for variety
