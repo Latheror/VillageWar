@@ -1,6 +1,6 @@
 class_name Constants
 
-const SIZE: int = 30
+const SIZE: int = 50
 const TILE_SIZE: float = 2.0        # world units per tile
 const HEIGHT_SCALE: float = 1.0     # scale for mountain heights
 
