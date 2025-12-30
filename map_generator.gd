@@ -40,8 +40,8 @@ static func scale_heights(raw_tiles: Array) -> void:
 		heights.append(raw.height)
 	var min_h: float = heights.min()
 	var max_h: float = heights.max()
-	var desired_min: float = Constants.DEEP_WATER_THRESHOLD - 1.0  # -6.0
-	var desired_max: float = Constants.HIGH_MOUNTAIN_THRESHOLD + 5.0  # 20.0
+	var desired_min: float = Constants.DEEP_WATER_THRESHOLD - 1.0s
+	var desired_max: float = Constants.SNOW_THRESHOLD + 1.0
 	if max_h == min_h:
 		# If all heights are the same, set min to desired_min and max to desired_max for variety
 		for i in range(raw_tiles.size()):
@@ -97,8 +97,10 @@ static func determine_biome(height: float) -> int:
 		return Constants.Biome.PLAIN
 	elif height < Constants.HIGH_MOUNTAIN_THRESHOLD:
 		return Constants.Biome.MOUNTAIN
-	else:
+	elif height < Constants.SNOW_THRESHOLD:
 		return Constants.Biome.HIGH_MOUNTAIN
+	else:
+		return Constants.Biome.SNOW
 
 static func get_biome_color(biome: int) -> Color:
 	match biome:
@@ -116,6 +118,8 @@ static func get_biome_color(biome: int) -> Color:
 			return Color(0.45, 0.35, 0.25)
 		Constants.Biome.HIGH_MOUNTAIN:
 			return Color(0.5, 0.5, 0.5)
+		Constants.Biome.SNOW:
+			return Constants.SNOW_COLOR
 		_:
 			return Color(1.0, 0.0, 1.0)  # error
 
@@ -133,6 +137,8 @@ static func get_tile_height(biome: int) -> float:
 			return Constants.MOUNTAIN_HEIGHT
 		Constants.Biome.HIGH_MOUNTAIN:
 			return Constants.HIGH_MOUNTAIN_HEIGHT
+		Constants.Biome.SNOW:
+			return Constants.SNOW_HEIGHT
 		_:
 			return 0.5
 
