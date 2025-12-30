@@ -14,10 +14,7 @@ static func render_tile(parent_node: Node, x: int, y: int, tile_size: float, col
 	mesh_instance.mesh = box_mesh
 
 	var material = StandardMaterial3D.new()
-	if village_id > 0:
-		material.albedo_color = Constants.VILLAGE_COLOR
-	else:
-		material.albedo_color = color
+	material.albedo_color = color
 	mesh_instance.material_override = material
 
 	mesh_instance.position = Vector3(x * tile_size, height / 2.0, y * tile_size)
@@ -27,8 +24,9 @@ static func render_tile(parent_node: Node, x: int, y: int, tile_size: float, col
 	if resource == Constants.ResourceType.FOREST:
 		ForestRenderer.draw_forest_trees(parent_node, x, y, height)
 
-	# Add village laser if needed
+	# Add village features if needed
 	if village_id > 0:
+		_draw_village_house(parent_node, x, y, height)
 		_draw_village_laser(parent_node, x, y, height)
 
 	# Add resources
@@ -64,6 +62,59 @@ static func _draw_village_laser(parent_node: Node, x: int, y: int, tile_height: 
 	laser_light.omni_range = 5.0
 	laser_light.position = Vector3(x * Constants.TILE_SIZE, tile_height + 10.0, y * Constants.TILE_SIZE)
 	parent_node.add_child(laser_light)
+
+# -------------------------
+# Draw village house
+# -------------------------
+static func _draw_village_house(parent_node: Node, x: int, y: int, tile_height: float) -> void:
+	var base_x = x * Constants.TILE_SIZE
+	var base_z = y * Constants.TILE_SIZE
+	var tile_center_x = base_x
+	var tile_center_z = base_z
+	
+	# Create exactly 3 houses arranged in a triangle around the tile center
+	var house_count = 3
+	var radius = Constants.TILE_SIZE * 0.25  # distance from center (reduced from 0.3)
+	
+	for i in range(house_count):
+		# Position houses at 120-degree intervals
+		var angle = (i * 2.0 * PI) / house_count  # 0°, 120°, 240°
+		var offset_x = cos(angle) * radius
+		var offset_z = sin(angle) * radius
+		
+		# Make houses face toward the center
+		var rotation_y = angle + PI  # face toward center
+		
+		# Random house size variation (much smaller)
+		var house_scale = 0.4 + randf() * 0.1
+		
+		# Create the main house body (box)
+		var house_body = MeshInstance3D.new()
+		var box_mesh = BoxMesh.new()
+		box_mesh.size = Vector3(0.8 * house_scale, 0.5 * house_scale, 0.8 * house_scale)  # smaller base size
+		
+		var house_material = StandardMaterial3D.new()
+		# Vary house colors slightly
+		var color_variation = randf() * 0.3
+		house_material.albedo_color = Color(0.8 + color_variation, 0.6 + color_variation * 0.5, 0.4 + color_variation * 0.3)
+		house_body.material_override = house_material
+		house_body.mesh = box_mesh
+		house_body.position = Vector3(tile_center_x + offset_x, tile_height + 0.25 * house_scale, tile_center_z + offset_z)
+		house_body.rotation.y = rotation_y
+		parent_node.add_child(house_body)
+		
+		# Create the roof (pyramid)
+		var roof = MeshInstance3D.new()
+		var roof_mesh = PrismMesh.new()
+		roof_mesh.size = Vector3(0.9 * house_scale, 0.4 * house_scale, 0.9 * house_scale)  # smaller roof
+		
+		var roof_material = StandardMaterial3D.new()
+		roof_material.albedo_color = Color(0.6, 0.3, 0.2)  # darker brown roof
+		roof.material_override = roof_material
+		roof.mesh = roof_mesh
+		roof.position = Vector3(tile_center_x + offset_x, tile_height + 0.6 * house_scale, tile_center_z + offset_z)
+		roof.rotation.y = rotation_y
+		parent_node.add_child(roof)
 
 # -------------------------
 # Draw fish resource
