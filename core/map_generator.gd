@@ -2,12 +2,14 @@ class_name MapGenerator
 
 const Constants = preload("res://data/constants.gd")
 const Tile = preload("res://data/tile.gd")
+const Village = preload("res://data/village.gd")
 const HeightGenerator = preload("res://core/height_generator.gd")
 const BiomeSystem = preload("res://core/biome_system.gd")
 const FeaturePlacer = preload("res://core/feature_placer.gd")
 
-static func generate_map() -> Array:
+static func generate_map() -> Dictionary:
 	var tiles: Array = []
+	var villages: Array = []
 	var half = Constants.SIZE / 2.0
 	var noise: FastNoiseLite = FastNoiseLite.new()
 	noise.seed = randi()
@@ -34,7 +36,7 @@ static func generate_map() -> Array:
 
 	# Third pass: add features (forests and villages)
 	FeaturePlacer.place_forests(tiles)
-	FeaturePlacer.place_villages(tiles)
+	villages = FeaturePlacer.place_villages(tiles)
 	FeaturePlacer.place_resources(tiles)
 
-	return tiles
+	return {"tiles": tiles, "villages": villages}

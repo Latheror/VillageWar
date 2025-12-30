@@ -3,9 +3,13 @@ extends Node3D
 const Constants = preload("res://data/constants.gd")
 const MapGenerator = preload("res://core/map_generator.gd")
 const Tile = preload("res://data/tile.gd")
+const Village = preload("res://data/village.gd")
 const TileRenderer = preload("res://rendering/tile_renderer.gd")
+const VillageUI = preload("res://village_ui.gd")
 
 var tiles: Array = []
+var villages: Array = []
+var village_ui: CanvasLayer
 var camera: Camera3D
 var camera_distance: float = 80.0
 var camera_angle: float = 45.0
@@ -14,10 +18,13 @@ var zoom_speed: float = 10.0
 var camera_target: Vector3
 
 func _ready() -> void:
-	tiles = MapGenerator.generate_map()
+	var map_data = MapGenerator.generate_map()
+	tiles = map_data.tiles
+	villages = map_data.villages
 	_render_map()
 	_setup_camera()
 	_setup_light()
+	_setup_village_ui()
 	
 	# Get camera reference for controls
 	camera = $Camera3D
@@ -58,6 +65,23 @@ func _setup_light() -> void:
 	light.transform.origin = Vector3(Constants.SIZE * Constants.TILE_SIZE / 2, 50, -Constants.SIZE * Constants.TILE_SIZE / 2)
 	light.rotation_degrees = Vector3(-45, 45, 0)
 	light.light_energy = 3.0
+
+# -------------------------
+# Village UI setup
+# -------------------------
+func _setup_village_ui() -> void:
+	village_ui = VillageUI.new()
+	add_child(village_ui)
+	
+	# Create UI panels for each village
+	for village in villages:
+		# Calculate world position of the village (center of the tile)
+		var world_pos = Vector3(
+			village.position.x * Constants.TILE_SIZE + Constants.TILE_SIZE / 2.0,
+			5.0,  # Height above the ground
+			village.position.y * Constants.TILE_SIZE + Constants.TILE_SIZE / 2.0
+		)
+		village_ui.add_village_panel(village, world_pos)
 
 # -------------------------
 # Camera controls

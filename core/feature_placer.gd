@@ -1,6 +1,14 @@
 class_name FeaturePlacer
 
 const Constants = preload("res://data/constants.gd")
+const Village = preload("res://data/village.gd")
+
+const VILLAGE_NAMES = [
+	"Eldoria",
+	"Brackhaven",
+	"Stormridge",
+	"Whisperwind"
+]
 
 # -------------------------
 # Place forest patches on plain tiles as resources
@@ -66,7 +74,7 @@ static func place_forests(tiles: Array) -> void:
 # -------------------------
 # Place villages on land tiles
 # -------------------------
-static func place_villages(tiles: Array) -> void:
+static func place_villages(tiles: Array) -> Array:
 	var land_tiles: Array = []
 	for tile in tiles:
 		# Exclude water, mountains, and snow - villages can only be on sand, plains
@@ -77,23 +85,27 @@ static func place_villages(tiles: Array) -> void:
 			tile.biome != Constants.Biome.SNOW):
 			land_tiles.append(tile)
 
-	var placed_villages: Array = []
+	var villages: Array = []
 	for i in range(Constants.VILLAGE_COUNT):
 		var attempts = 0
 		var max_attempts = 100
 		while attempts < max_attempts:
 			var random_tile = land_tiles[randi() % land_tiles.size()]
 			var too_close = false
-			for village in placed_villages:
-				var dist = Vector2(random_tile.x - village.x, random_tile.y - village.y).length()
+			for village in villages:
+				var dist = Vector2(random_tile.x - village.position.x, random_tile.y - village.position.y).length()
 				if dist < Constants.MIN_VILLAGE_DISTANCE:
 					too_close = true
 					break
 			if not too_close:
 				random_tile.village_id = i + 1
-				placed_villages.append(random_tile)
+				var village_name = VILLAGE_NAMES[i] if i < VILLAGE_NAMES.size() else "Village %d" % (i + 1)
+				var village = Village.new(i + 1, Vector2(random_tile.x, random_tile.y), village_name)
+				villages.append(village)
 				break
 			attempts += 1
+
+	return villages
 
 # -------------------------
 # Place resources on tiles
