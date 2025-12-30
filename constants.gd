@@ -2,7 +2,7 @@ class_name Constants
 
 const SIZE: int = 50
 const TILE_SIZE: float = 2.0        # world units per tile
-const HEIGHT_SCALE: float = 1.0     # scale for mountain heights
+const HEIGHT_SCALE: float = 2.0     # scale for mountain heights
 
 # --- Island shape ---
 const SHAPE_FREQ: float = 0.05
@@ -20,10 +20,15 @@ const DETAIL_FREQ: float = 0.08
 const DETAIL_MULT: float = 4.0
 
 # --- Biomes ---
-const DEEP_WATER_THRESHOLD: float = -6.0
+const DEEP_WATER_THRESHOLD: float = -3.0
 const WATER_THRESHOLD: float = 0.0
 const SAND_THRESHOLD: float = 3.0
 const PLAIN_THRESHOLD: float = 9.0
+
+# --- Fixed Heights for Flat Biomes ---
+const SAND_HEIGHT: float = 1.0
+const PLAIN_HEIGHT: float = 2.0
+const MOUNTAIN_HEIGHT: float = 4.0
 
 # --- Villages ---
 const VILLAGE_COUNT: int = 4
