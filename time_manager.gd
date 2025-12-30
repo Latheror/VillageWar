@@ -2,12 +2,25 @@ extends Node
 
 class_name TimeManager
 
+signal day_advanced
+
 var current_day: int = 1
 var game_date: String = "January 1, 2026"
 var paused: bool = false
+var day_timer: Timer
 
 func _ready() -> void:
-	pass
+	day_timer = Timer.new()
+	day_timer.wait_time = 5.0
+	day_timer.one_shot = false
+	day_timer.connect("timeout", Callable(self, "_on_day_timer_timeout"))
+	add_child(day_timer)
+	day_timer.start()
+
+func _on_day_timer_timeout() -> void:
+	if not paused:
+		advance_day()
+		emit_signal("day_advanced")
 
 func advance_day() -> void:
 	current_day += 1

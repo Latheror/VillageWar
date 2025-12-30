@@ -22,6 +22,7 @@ var camera_target: Vector3
 func _ready() -> void:
 	time_manager = TimeManager.new()
 	add_child(time_manager)
+	time_manager.connect("day_advanced", Callable(self, "_on_day_advanced"))
 	
 	var map_data = MapGenerator.generate_map()
 	tiles = map_data.tiles
@@ -37,6 +38,9 @@ func _ready() -> void:
 	var map_center = Constants.SIZE * Constants.TILE_SIZE / 2.0
 	camera_target = Vector3(map_center, 0, map_center)
 	_update_camera_position()  # Set initial camera position
+
+func _on_day_advanced() -> void:
+	village_ui.update_hud(time_manager.get_date(), time_manager.get_day())
 
 func _process(delta: float) -> void:
 	_handle_camera_movement(delta)
