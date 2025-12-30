@@ -11,13 +11,45 @@ static func generate_map() -> Array:
 	noise.fractal_octaves = Constants.SHAPE_OCTAVES
 	noise.frequency = Constants.SHAPE_FREQ
 
+	# First pass: compute raw heights
+	var raw_tiles: Array = []
 	for x in range(Constants.SIZE):
 		for y in range(Constants.SIZE):
-			var tile = create_tile(x, y, half, noise)
-			tiles.append(tile)
+			var height = compute_raw_height(x, y, half, noise)
+			raw_tiles.append({"x": x, "y": y, "height": height})
+
+	# Scale heights to ensure deep sea and high mountains
+	scale_heights(raw_tiles)
+
+	# Second pass: create tiles with biomes
+	for raw in raw_tiles:
+		var biome = determine_biome(raw.height)
+		var color = get_biome_color(biome)
+		var tile_height = get_tile_height(biome)
+		var tile = Tile.new(raw.x, raw.y, tile_height, biome, color)
+		tiles.append(tile)
 	return tiles
 
-static func create_tile(x: int, y: int, half: float, noise: FastNoiseLite) -> Tile:
+static func scale_heights(raw_tiles: Array) -> void:
+	var heights: Array = []
+	for raw in raw_tiles:
+		heights.append(raw.height)
+	var min_h: float = heights.min()
+	var max_h: float = heights.max()
+	var desired_min: float = Constants.DEEP_WATER_THRESHOLD - 1.0  # -6.0
+	var desired_max: float = Constants.HIGH_MOUNTAIN_THRESHOLD + 5.0  # 20.0
+	if max_h == min_h:
+		# If all heights are the same, set min to desired_min and max to desired_max for variety
+		for i in range(raw_tiles.size()):
+			if i == 0:
+				raw_tiles[i].height = desired_max
+			else:
+				raw_tiles[i].height = desired_min
+	else:
+		for raw in raw_tiles:
+			raw.height = (raw.height - min_h) / (max_h - min_h) * (desired_max - desired_min) + desired_min
+
+static func compute_raw_height(x: int, y: int, half: float, noise: FastNoiseLite) -> float:
 	# Edge mask
 	var cx: float = x - half
 	var cy: float = y - half
@@ -35,8 +67,6 @@ static func create_tile(x: int, y: int, half: float, noise: FastNoiseLite) -> Ti
 
 	# Smooth land factor
 	var land_factor: float = clamp((shape - Constants.LAND_THRESHOLD) / 0.5, 0.0, 1.0)
-	if land_factor <= 0.0 or edge_mask > 0.95:
-		return Tile.new(x, y, 0.5, Constants.Biome.DEEP_WATER, Color(0.0, 0.0, 0.4))
 
 	# Height
 	var base_height: float = (1.0 - edge_mask) * Constants.BASE_HEIGHT * land_factor
@@ -50,42 +80,53 @@ static func create_tile(x: int, y: int, half: float, noise: FastNoiseLite) -> Ti
 	if height > Constants.PLAIN_THRESHOLD:
 		height += pow(height - Constants.PLAIN_THRESHOLD, 1.4)
 
-	# Determine biome and color
-	var biome: int
-	var color: Color
+	return height
+
+static func determine_biome(height: float) -> int:
 	if height < Constants.DEEP_WATER_THRESHOLD:
-		biome = Constants.Biome.DEEP_WATER
-		color = Color(0.0, 0.0, 0.4)
+		return Constants.Biome.DEEP_WATER
 	elif height < Constants.WATER_THRESHOLD:
-		biome = Constants.Biome.WATER
-		color = Color(0.0, 0.3, 0.8)
+		return Constants.Biome.WATER
 	elif height < Constants.SAND_THRESHOLD:
-		biome = Constants.Biome.SAND
-		color = Color(0.9, 0.8, 0.5)
+		return Constants.Biome.SAND
 	elif height < Constants.PLAIN_THRESHOLD:
-		biome = Constants.Biome.PLAIN
-		color = Color(0.1, 0.7, 0.2)
+		return Constants.Biome.PLAIN
 	elif height < Constants.HIGH_MOUNTAIN_THRESHOLD:
-		biome = Constants.Biome.MOUNTAIN
-		color = Color(0.45, 0.35, 0.25)
+		return Constants.Biome.MOUNTAIN
 	else:
-		biome = Constants.Biome.HIGH_MOUNTAIN
-		color = Color(0.5, 0.5, 0.5)
+		return Constants.Biome.HIGH_MOUNTAIN
 
-	# Set fixed height based on biome
-	var tile_height: float
-	if biome == Constants.Biome.DEEP_WATER or biome == Constants.Biome.WATER:
-		tile_height = 0.5
-	elif biome == Constants.Biome.SAND:
-		tile_height = Constants.SAND_HEIGHT
-	elif biome == Constants.Biome.PLAIN:
-		tile_height = Constants.PLAIN_HEIGHT
-	elif biome == Constants.Biome.MOUNTAIN:
-		tile_height = Constants.MOUNTAIN_HEIGHT
-	else:  # high_mountain
-		tile_height = Constants.HIGH_MOUNTAIN_HEIGHT
+static func get_biome_color(biome: int) -> Color:
+	match biome:
+		Constants.Biome.DEEP_WATER:
+			return Color(0.0, 0.0, 0.4)
+		Constants.Biome.WATER:
+			return Color(0.0, 0.3, 0.8)
+		Constants.Biome.SAND:
+			return Color(0.9, 0.8, 0.5)
+		Constants.Biome.PLAIN:
+			return Color(0.1, 0.7, 0.2)
+		Constants.Biome.MOUNTAIN:
+			return Color(0.45, 0.35, 0.25)
+		Constants.Biome.HIGH_MOUNTAIN:
+			return Color(0.5, 0.5, 0.5)
+		_:
+			return Color(1.0, 0.0, 1.0)  # error
 
-	return Tile.new(x, y, tile_height, biome, color)
+static func get_tile_height(biome: int) -> float:
+	match biome:
+		Constants.Biome.DEEP_WATER, Constants.Biome.WATER:
+			return 0.5
+		Constants.Biome.SAND:
+			return Constants.SAND_HEIGHT
+		Constants.Biome.PLAIN:
+			return Constants.PLAIN_HEIGHT
+		Constants.Biome.MOUNTAIN:
+			return Constants.MOUNTAIN_HEIGHT
+		Constants.Biome.HIGH_MOUNTAIN:
+			return Constants.HIGH_MOUNTAIN_HEIGHT
+		_:
+			return 0.5
 
 static func place_villages(tiles: Array) -> void:
 	var land_tiles: Array = []
