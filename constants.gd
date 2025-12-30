@@ -9,10 +9,10 @@ const SHAPE_FREQ: float = 0.05
 const SHAPE_OCTAVES: int = 3
 const WARP_FREQ: float = 0.1
 const WARP_STRENGTH: float = 2.5
-const LAND_THRESHOLD: float = 0.0
+const LAND_THRESHOLD: float = -0.3
 
 # --- Edge safety ---
-const EDGE_POWER: float = 6.0
+const EDGE_POWER: float = 2.0
 
 # --- Height ---
 const BASE_HEIGHT: float = 10.0
