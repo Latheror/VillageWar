@@ -1,40 +1,107 @@
 extends Node2D
 
-const SIZE := 30
-const TILE_SIZE := 32
-const ISLAND_RADIUS := 0.85   # taille globale
-const FALLOFF_POWER := 3.0    # douceur du bord
+const SIZE: int = 30
+const TILE_SIZE: float = 32.0
 
-func _ready():
-	var half = SIZE / 2.0
+# --- Island shape ---
+const SHAPE_FREQ: float = 0.05
+const SHAPE_OCTAVES: int = 3
+const WARP_FREQ: float = 0.1
+const WARP_STRENGTH: float = 2.5
+const LAND_THRESHOLD: float = 0.0   # début de la terre
 
-	var noise = FastNoiseLite.new()
+# --- Edge safety ---
+const EDGE_POWER: float = 6.0
+
+# --- Height ---
+const BASE_HEIGHT: float = 18.0
+const DETAIL_FREQ: float = 0.08
+const DETAIL_MULT: float = 4.0
+
+# --- Biomes ---
+const DEEP_WATER_THRESHOLD: float = -6.0
+const WATER_THRESHOLD: float = 0.0
+const SAND_THRESHOLD: float = 3.0
+const PLAIN_THRESHOLD: float = 9.0
+
+
+func _ready() -> void:
+	var half: float = SIZE / 2.0
+
+	var noise: FastNoiseLite = FastNoiseLite.new()
 	noise.seed = randi()
-	noise.frequency = 0.06
+	noise.fractal_octaves = SHAPE_OCTAVES
+	noise.frequency = SHAPE_FREQ
 
 	for x in range(SIZE):
 		for y in range(SIZE):
 
-			var cx = x - half
-			var cy = y - half
+			# -------------------------
+			# Edge mask
+			# -------------------------
+			var cx: float = x - half
+			var cy: float = y - half
+			var edge_dist: float = Vector2(cx, cy).length() / half
+			var edge_mask: float = pow(clamp(edge_dist, 0.0, 1.0), EDGE_POWER)
 
-			# Distance normalisée (0 = centre, 1 = bord)
-			var dist = Vector2(cx, cy).length() / half
-			dist = clamp(dist / ISLAND_RADIUS, 0.0, 1.0)
+			# -------------------------
+			# Warp coordinates (moderate)
+			# -------------------------
+			var warp_x: float = noise.get_noise_2d(x * WARP_FREQ, y * WARP_FREQ) * WARP_STRENGTH
+			var warp_y: float = noise.get_noise_2d((x+100) * WARP_FREQ, (y+100) * WARP_FREQ) * WARP_STRENGTH
+			var wx: float = x + warp_x
+			var wy: float = y + warp_y
 
-			# Courbe de chute
-			var falloff = pow(dist, FALLOFF_POWER)
+			# -------------------------
+			# Shape noise (multi-octave)
+			# -------------------------
+			var shape: float = noise.get_noise_2d(wx, wy)
 
-			var n = noise.get_noise_2d(x, y)
+			# -------------------------
+			# Smooth land factor (soft transition to water)
+			# -------------------------
+			var land_factor: float = clamp((shape - LAND_THRESHOLD) / 0.5, 0.0, 1.0)
 
-			# Attraction progressive vers l'eau
-			var height = lerp(n, -1.0, falloff)
+			# Skip tiles that are basically water or near edges
+			if land_factor <= 0.0 or edge_mask > 0.95:
+				_draw_tile(x, y, TILE_SIZE, Color(0.0, 0.0, 0.4))
+				continue
 
-			_draw_tile(x, y, TILE_SIZE, Color.GREEN if height > 0 else Color.BLUE)
+			# -------------------------
+			# Height
+			# -------------------------
+			var base_height: float = (1.0 - edge_mask) * BASE_HEIGHT * land_factor
+			var detail: float = noise.get_noise_2d(x * DETAIL_FREQ, y * DETAIL_FREQ)
+			var height: float = base_height + detail * DETAIL_MULT
+
+			# Limit height near edges (no sand at map edge)
+			var max_edge_height: float = lerp(1000.0, WATER_THRESHOLD - 0.01, edge_mask)
+			height = min(height, max_edge_height)
+
+			# Mountain exaggeration
+			if height > PLAIN_THRESHOLD:
+				height += pow(height - PLAIN_THRESHOLD, 1.4)
+
+			# -------------------------
+			# Biomes
+			# -------------------------
+			var color: Color
+			if height < DEEP_WATER_THRESHOLD:
+				color = Color(0.0, 0.0, 0.4)
+			elif height < WATER_THRESHOLD:
+				color = Color(0.0, 0.3, 0.8)
+			elif height < SAND_THRESHOLD and land_factor > 0.0:
+				color = Color(0.9, 0.8, 0.5)  # sand
+			elif height < PLAIN_THRESHOLD:
+				color = Color(0.1, 0.7, 0.2)  # plains
+			else:
+				color = Color(0.45, 0.35, 0.25)  # mountains
+
+			_draw_tile(x, y, TILE_SIZE, color)
 
 
-func _draw_tile(x: int, y: int, tile_size: int, color: Color) -> void:
-	var rect = ColorRect.new()
+func _draw_tile(x: int, y: int, tile_size: float, color: Color) -> void:
+	var rect: ColorRect = ColorRect.new()
 	rect.size = Vector2(tile_size, tile_size)
 	rect.position = Vector2(x * tile_size, y * tile_size)
 	rect.color = color
