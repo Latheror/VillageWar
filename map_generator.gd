@@ -73,8 +73,8 @@ static func compute_raw_height(x: int, y: int, half: float, noise: FastNoiseLite
 	var detail: float = noise.get_noise_2d(x * Constants.DETAIL_FREQ, y * Constants.DETAIL_FREQ)
 	var height: float = base_height + detail * Constants.DETAIL_MULT
 
-	# Limit height near edges
-	var max_edge_height: float = lerp(1000.0, Constants.WATER_THRESHOLD - 0.01, edge_mask)
+	# Limit height near edges to prevent unnatural spikes, but allow water
+	var max_edge_height: float = lerp(1000.0, Constants.PLAIN_THRESHOLD, edge_mask)
 	height = min(height, max_edge_height)
 
 	if height > Constants.PLAIN_THRESHOLD:
