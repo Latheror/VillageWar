@@ -179,9 +179,6 @@ static func place_forests(tiles: Array) -> void:
 	# Create forest patches probabilistically
 	var used_tiles: Array = []
 	
-	# Shuffle plain tiles to randomize processing order
-	plain_tiles.shuffle()
-	
 	for plain_tile in plain_tiles:
 		# Skip if already used in a forest patch
 		if used_tiles.has(plain_tile):
@@ -196,22 +193,21 @@ static func place_forests(tiles: Array) -> void:
 			var patch_tiles: Array = [plain_tile]
 			used_tiles.append(plain_tile)
 			
-			while patch_tiles.size() < patch_size and plain_tiles.size() > 0:
+			while patch_tiles.size() < patch_size:
 				# Find neighbors of current patch
 				var neighbors: Array = []
 				for patch_tile in patch_tiles:
 					# Check all 4 adjacent tiles
-					var directions = [
-						Vector2(0, 1), Vector2(0, -1), Vector2(1, 0), Vector2(-1, 0)
-					]
+					var directions = [Vector2(0, 1), Vector2(0, -1), Vector2(1, 0), Vector2(-1, 0)]
 					for dir in directions:
-						var neighbor_x = patch_tile.x + dir.x
-						var neighbor_y = patch_tile.y + dir.y
+						var neighbor_x = patch_tile.x + int(dir.x)
+						var neighbor_y = patch_tile.y + int(dir.y)
 						
 						# Find the neighbor tile
 						for tile in plain_tiles:
 							if tile.x == neighbor_x and tile.y == neighbor_y and not used_tiles.has(tile):
-								neighbors.append(tile)
+								if not neighbors.has(tile):
+									neighbors.append(tile)
 								break
 				
 				if neighbors.size() == 0:
