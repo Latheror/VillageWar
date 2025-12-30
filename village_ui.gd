@@ -3,14 +3,71 @@ extends CanvasLayer
 const Village = preload("res://data/village.gd")
 
 var village_panels: Dictionary = {}  # village_id -> Control node
+var top_bar: Panel
+var date_label: Label
+var day_label: Label
+var pause_button: Button
+var next_day_button: Button
+var main_node: Node  # Reference to main.gd
 
 func _ready() -> void:
-	# This will be called when the scene is ready
-	pass
+	# Create top bar
+	top_bar = Panel.new()
+	top_bar.custom_minimum_size = Vector2(700, 40)
+	top_bar.position = Vector2(10, 10)
+	add_child(top_bar)
+	
+	# Date label
+	date_label = Label.new()
+	date_label.text = "Date: "
+	date_label.position = Vector2(10, 10)
+	date_label.custom_minimum_size = Vector2(250, 20)
+	top_bar.add_child(date_label)
+	
+	# Day label
+	day_label = Label.new()
+	day_label.text = "Day: "
+	day_label.position = Vector2(270, 10)
+	day_label.custom_minimum_size = Vector2(100, 20)
+	top_bar.add_child(day_label)
+	
+	# Pause button
+	pause_button = Button.new()
+	pause_button.text = "Pause"
+	pause_button.position = Vector2(380, 4)
+	pause_button.custom_minimum_size = Vector2(80, 20)
+	pause_button.connect("pressed", Callable(self, "_on_pause_pressed"))
+	top_bar.add_child(pause_button)
+	
+	# Next Day button
+	next_day_button = Button.new()
+	next_day_button.text = "Next Day"
+	next_day_button.position = Vector2(470, 4)
+	next_day_button.custom_minimum_size = Vector2(100, 20)
+	next_day_button.connect("pressed", Callable(self, "_on_next_day_pressed"))
+	top_bar.add_child(next_day_button)
+
+func set_main_reference(main: Node) -> void:
+	main_node = main
+
+func _on_pause_pressed() -> void:
+	if main_node:
+		main_node.toggle_pause()
+
+func _on_next_day_pressed() -> void:
+	if main_node:
+		main_node.advance_day()
+
+func update_pause_button(is_paused: bool) -> void:
+	pause_button.text = "Resume" if is_paused else "Pause"
 
 func _process(_delta: float) -> void:
 	# Update panel positions each frame to follow villages
 	_update_panel_positions()
+
+func update_hud(date: String, day: int) -> void:
+	date_label.text = "Date: " + date
+	day_label.text = "Day: " + str(day)
 
 func add_village_panel(village: Village, world_position: Vector3) -> void:
 	var panel = Panel.new()

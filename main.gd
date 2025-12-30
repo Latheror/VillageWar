@@ -6,10 +6,12 @@ const Tile = preload("res://data/tile.gd")
 const Village = preload("res://data/village.gd")
 const TileRenderer = preload("res://rendering/tile_renderer.gd")
 const VillageUI = preload("res://village_ui.gd")
+const TimeManager = preload("res://time_manager.gd")
 
 var tiles: Array = []
 var villages: Array = []
 var village_ui: CanvasLayer
+var time_manager: TimeManager
 var camera: Camera3D
 var camera_distance: float = 80.0
 var camera_angle: float = 45.0
@@ -18,6 +20,9 @@ var zoom_speed: float = 10.0
 var camera_target: Vector3
 
 func _ready() -> void:
+	time_manager = TimeManager.new()
+	add_child(time_manager)
+	
 	var map_data = MapGenerator.generate_map()
 	tiles = map_data.tiles
 	villages = map_data.villages
@@ -72,6 +77,7 @@ func _setup_light() -> void:
 func _setup_village_ui() -> void:
 	village_ui = VillageUI.new()
 	add_child(village_ui)
+	village_ui.set_main_reference(self)
 	
 	# Create UI panels for each village
 	for village in villages:
@@ -82,6 +88,9 @@ func _setup_village_ui() -> void:
 			village.position.y * Constants.TILE_SIZE + Constants.TILE_SIZE / 2.0
 		)
 		village_ui.add_village_panel(village, world_pos)
+	
+	# Update HUD with initial values
+	village_ui.update_hud(time_manager.get_date(), time_manager.get_day())
 
 # -------------------------
 # Camera controls
@@ -111,6 +120,14 @@ func _handle_zoom(event: InputEvent) -> void:
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN and event.pressed:
 			camera_distance = min(200.0, camera_distance + zoom_speed)
 			_update_camera_position()
+
+func advance_day() -> void:
+	time_manager.advance_day()
+	village_ui.update_hud(time_manager.get_date(), time_manager.get_day())
+
+func toggle_pause() -> void:
+	time_manager.toggle_pause()
+	village_ui.update_pause_button(time_manager.is_paused())
 
 func _update_camera_position() -> void:
 	if camera:
