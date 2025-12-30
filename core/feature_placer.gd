@@ -69,7 +69,12 @@ static func place_forests(tiles: Array) -> void:
 static func place_villages(tiles: Array) -> void:
 	var land_tiles: Array = []
 	for tile in tiles:
-		if tile.biome != Constants.Biome.DEEP_WATER and tile.biome != Constants.Biome.WATER:
+		# Exclude water, mountains, and snow - villages can only be on sand, plains
+		if (tile.biome != Constants.Biome.DEEP_WATER and 
+			tile.biome != Constants.Biome.WATER and
+			tile.biome != Constants.Biome.MOUNTAIN and
+			tile.biome != Constants.Biome.HIGH_MOUNTAIN and
+			tile.biome != Constants.Biome.SNOW):
 			land_tiles.append(tile)
 
 	var placed_villages: Array = []

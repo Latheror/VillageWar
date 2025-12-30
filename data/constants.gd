@@ -30,9 +30,9 @@ const SNOW_THRESHOLD: float = 18.0
 # --- Fixed Heights for Flat Biomes ---
 const SAND_HEIGHT: float = 1.0
 const PLAIN_HEIGHT: float = 2.0
-const MOUNTAIN_HEIGHT: float = 4.0
-const HIGH_MOUNTAIN_HEIGHT: float = 6.0
-const SNOW_HEIGHT: float = 7.0
+const MOUNTAIN_HEIGHT: float = 3.0
+const HIGH_MOUNTAIN_HEIGHT: float = 4.0
+const SNOW_HEIGHT: float = 5.0
 
 # --- Villages ---
 const VILLAGE_COUNT: int = 4
