@@ -25,6 +25,11 @@ const WATER_THRESHOLD: float = 0.0
 const SAND_THRESHOLD: float = 3.0
 const PLAIN_THRESHOLD: float = 9.0
 
+# --- Villages ---
+const VILLAGE_COUNT: int = 4
+const MIN_VILLAGE_DISTANCE: float = 8.0  # minimum distance between villages in tiles
+const VILLAGE_COLOR: Color = Color(1.0, 0.0, 0.0)  # red for villages
+
 enum Biome {
 	DEEP_WATER,
 	WATER,

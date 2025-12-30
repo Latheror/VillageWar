@@ -71,3 +71,27 @@ static func create_tile(x: int, y: int, half: float, noise: FastNoiseLite) -> Ti
 		color = Color(0.45, 0.35, 0.25)
 
 	return Tile.new(x, y, tile_height, biome, color)
+
+static func place_villages(tiles: Array) -> void:
+	var land_tiles: Array = []
+	for tile in tiles:
+		if tile.biome != Constants.Biome.DEEP_WATER and tile.biome != Constants.Biome.WATER:
+			land_tiles.append(tile)
+	
+	var placed_villages: Array = []
+	for i in range(Constants.VILLAGE_COUNT):
+		var attempts = 0
+		var max_attempts = 100
+		while attempts < max_attempts:
+			var random_tile = land_tiles[randi() % land_tiles.size()]
+			var too_close = false
+			for village in placed_villages:
+				var dist = Vector2(random_tile.x - village.x, random_tile.y - village.y).length()
+				if dist < Constants.MIN_VILLAGE_DISTANCE:
+					too_close = true
+					break
+			if not too_close:
+				random_tile.village_id = i + 1
+				placed_villages.append(random_tile)
+				break
+			attempts += 1
