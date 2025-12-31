@@ -44,17 +44,28 @@ func _on_day_advanced() -> void:
 	village_ui.update_hud(time_manager.get_date(), time_manager.get_day())
 
 func process_village_actions() -> void:
+	var any_changed = false
 	for village in villages:
-		village.perform_daily_action(tiles, Constants)
-	# Update tile counts
+		if village.perform_daily_action(tiles, Constants):
+			any_changed = true
+
+	# Update tile counts (count only house tiles: village-owned tiles with resource NONE)
 	for village in villages:
 		var count = 0
 		for tile in tiles:
-			if tile.village_id == village.id:
+			if tile.village_id == village.id and tile.resource == Constants.ResourceType.NONE:
 				count += 1
 		village.tile_count = count
-	# Re-render map to show changes (new houses, removed forests)
-	_render_map()
+
+	# Enforce population cap after tile counts updated
+	for village in villages:
+		var max_pop = 5 * village.tile_count
+		if village.people > max_pop:
+			village.people = max_pop
+
+	# Re-render map only if something changed
+	if any_changed:
+		_render_map()
 
 func _process(delta: float) -> void:
 	_handle_camera_movement(delta)
@@ -74,6 +85,15 @@ func _render_map() -> void:
 	
 	for tile in tiles:
 		TileRenderer.render_tile(self, tile.x, tile.y, Constants.TILE_SIZE, tile.color, tile.height, tile.biome, tile.village_id, tile.resource, villages)
+
+	# Draw village workers (humans)
+	for village in villages:
+		var worker_positions = village.get_worker_positions(tiles)
+		for pos in worker_positions:
+			# pos is a Vector2 tile coordinate; convert to world coords (center of tile)
+			var world_x = pos.x * Constants.TILE_SIZE + Constants.TILE_SIZE / 2.0
+			var world_z = pos.y * Constants.TILE_SIZE + Constants.TILE_SIZE / 2.0
+			TileRenderer._draw_human(self, world_x, world_z, 0.0, Color(0.9, 0.9, 0.9))
 
 # -------------------------
 # Camera setup

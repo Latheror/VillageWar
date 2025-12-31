@@ -241,3 +241,28 @@ static func _draw_boat(parent_node: Node, x: int, y: int, tile_height: float) ->
 	sail.position = Vector3(base_x, tile_height + 0.8, base_z)
 	sail.rotation_degrees = Vector3(0, 0, 0)  # flat
 	parent_node.add_child(sail)
+
+# -------------------------
+# Draw simple human worker
+# -------------------------
+static func _draw_human(parent_node: Node, x: float, y: float, tile_height: float, color: Color = Color(0.9, 0.9, 0.9)) -> void:
+	# x and y are world coordinates (not tile indices)
+	var body = MeshInstance3D.new()
+	var sphere = SphereMesh.new()
+	sphere.radius = 0.12
+	body.mesh = sphere
+	var mat = StandardMaterial3D.new()
+	mat.albedo_color = color
+	body.material_override = mat
+	body.position = Vector3(x, tile_height + 0.35, y)
+	parent_node.add_child(body)
+
+	# Head
+	var head = MeshInstance3D.new()
+	var head_mesh = SphereMesh.new()
+	head_mesh.radius = 0.08
+	head.mesh = head_mesh
+	head.material_override = mat
+	head.position = Vector3(x, tile_height + 0.6, y)
+	parent_node.add_child(head)
+
