@@ -75,22 +75,18 @@ static func place_forests(tiles: Array) -> void:
 # Place villages on land tiles
 # -------------------------
 static func place_villages(tiles: Array) -> Array:
-	var land_tiles: Array = []
+	var plain_tiles: Array = []
 	for tile in tiles:
-		# Exclude water, mountains, and snow - villages can only be on sand, plains
-		if (tile.biome != Constants.Biome.DEEP_WATER and 
-			tile.biome != Constants.Biome.WATER and
-			tile.biome != Constants.Biome.MOUNTAIN and
-			tile.biome != Constants.Biome.HIGH_MOUNTAIN and
-			tile.biome != Constants.Biome.SNOW):
-			land_tiles.append(tile)
+		# Villages can only be placed on plains
+		if tile.biome == Constants.Biome.PLAIN:
+			plain_tiles.append(tile)
 
 	var villages: Array = []
 	for i in range(Constants.VILLAGE_COUNT):
 		var attempts = 0
 		var max_attempts = 100
 		while attempts < max_attempts:
-			var random_tile = land_tiles[randi() % land_tiles.size()]
+			var random_tile = plain_tiles[randi() % plain_tiles.size()]
 			var too_close = false
 			for village in villages:
 				var dist = Vector2(random_tile.x - village.position.x, random_tile.y - village.position.y).length()
