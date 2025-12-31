@@ -6,7 +6,7 @@ const ForestRenderer = preload("res://rendering/forest_renderer.gd")
 # -------------------------
 # Render a single tile
 # -------------------------
-static func render_tile(parent_node: Node, x: int, y: int, tile_size: float, color: Color, height: float, biome: int, village_id: int = 0, resource: int = 0) -> void:
+static func render_tile(parent_node: Node, x: int, y: int, tile_size: float, color: Color, height: float, biome: int, village_id: int = 0, resource: int = 0, villages: Array = []) -> void:
 	# Create the base tile mesh
 	var mesh_instance = MeshInstance3D.new()
 	var box_mesh = BoxMesh.new()
@@ -26,12 +26,21 @@ static func render_tile(parent_node: Node, x: int, y: int, tile_size: float, col
 
 	# Add village features if needed
 	if village_id > 0:
-		_draw_village_house(parent_node, x, y, height)
-		_draw_village_laser(parent_node, x, y, height)
+		var is_center = false
+		for village in villages:
+			if village.id == village_id and village.position.x == x and village.position.y == y:
+				is_center = true
+				break
+		if resource != Constants.ResourceType.FARM:
+			_draw_village_house(parent_node, x, y, height)
+		if is_center:
+			_draw_village_laser(parent_node, x, y, height)
 
 	# Add resources
 	if resource == Constants.ResourceType.FISH:
 		_draw_fish(parent_node, x, y, height)
+	if resource == Constants.ResourceType.FARM:
+		_draw_farm(parent_node, x, y, height)
 
 # -------------------------
 # Draw village laser
@@ -140,3 +149,51 @@ static func _draw_fish(parent_node: Node, x: int, y: int, tile_height: float) ->
 	fish.rotation_degrees = Vector3(0, randf() * 360, 0)
 	
 	parent_node.add_child(fish)
+
+# -------------------------
+# Draw farm
+# -------------------------
+static func _draw_farm(parent_node: Node, x: int, y: int, tile_height: float) -> void:
+	var base_x = x * Constants.TILE_SIZE
+	var base_z = y * Constants.TILE_SIZE
+	var half_tile = Constants.TILE_SIZE / 2.0
+	
+	# Draw fence posts at the four corners
+	var fence_material = StandardMaterial3D.new()
+	fence_material.albedo_color = Color(0.4, 0.2, 0.1)  # dark brown
+	
+	var post_positions = [
+		Vector3(base_x - half_tile + 0.1, tile_height + 0.5, base_z - half_tile + 0.1),
+		Vector3(base_x + half_tile - 0.1, tile_height + 0.5, base_z - half_tile + 0.1),
+		Vector3(base_x - half_tile + 0.1, tile_height + 0.5, base_z + half_tile - 0.1),
+		Vector3(base_x + half_tile - 0.1, tile_height + 0.5, base_z + half_tile - 0.1)
+	]
+	
+	for pos in post_positions:
+		var post = MeshInstance3D.new()
+		var cylinder = CylinderMesh.new()
+		cylinder.top_radius = 0.05
+		cylinder.bottom_radius = 0.05
+		cylinder.height = 1.0
+		post.mesh = cylinder
+		post.material_override = fence_material
+		post.position = pos
+		parent_node.add_child(post)
+	
+	# Draw wheat covering the tile
+	var wheat_material = StandardMaterial3D.new()
+	wheat_material.albedo_color = Color(1.0, 1.0, 0.0)  # yellow
+	
+	for i in range(8):
+		for j in range(8):
+			var wheat = MeshInstance3D.new()
+			var box = BoxMesh.new()
+			box.size = Vector3(0.1, 0.3, 0.1)
+			wheat.mesh = box
+			wheat.material_override = wheat_material
+			wheat.position = Vector3(
+				base_x - half_tile + 0.2 + i * 0.2,
+				tile_height + 0.15,
+				base_z - half_tile + 0.2 + j * 0.2
+			)
+			parent_node.add_child(wheat)

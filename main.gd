@@ -40,7 +40,21 @@ func _ready() -> void:
 	_update_camera_position()  # Set initial camera position
 
 func _on_day_advanced() -> void:
+	process_village_actions()
 	village_ui.update_hud(time_manager.get_date(), time_manager.get_day())
+
+func process_village_actions() -> void:
+	for village in villages:
+		village.perform_daily_action(tiles, Constants)
+	# Update tile counts
+	for village in villages:
+		var count = 0
+		for tile in tiles:
+			if tile.village_id == village.id:
+				count += 1
+		village.tile_count = count
+	# Re-render map to show changes (new houses, removed forests)
+	_render_map()
 
 func _process(delta: float) -> void:
 	_handle_camera_movement(delta)
@@ -53,8 +67,13 @@ func _input(event: InputEvent) -> void:
 # Map rendering
 # -------------------------
 func _render_map() -> void:
+	# Clear existing mesh instances
+	for child in get_children():
+		if child is MeshInstance3D:
+			child.queue_free()
+	
 	for tile in tiles:
-		TileRenderer.render_tile(self, tile.x, tile.y, Constants.TILE_SIZE, tile.color, tile.height, tile.biome, tile.village_id, tile.resource)
+		TileRenderer.render_tile(self, tile.x, tile.y, Constants.TILE_SIZE, tile.color, tile.height, tile.biome, tile.village_id, tile.resource, villages)
 
 # -------------------------
 # Camera setup

@@ -71,10 +71,10 @@ func update_hud(date: String, day: int) -> void:
 
 func add_village_panel(village: Village, world_position: Vector3) -> void:
 	var panel = Panel.new()
-	panel.custom_minimum_size = Vector2(140, 100)
+	panel.custom_minimum_size = Vector2(140, 120)
 	
 	var container = VBoxContainer.new()
-	container.custom_minimum_size = Vector2(120, 80)
+	container.custom_minimum_size = Vector2(120, 100)
 	
 	# Village name - larger and bold
 	var name_label = Label.new()
@@ -85,7 +85,7 @@ func add_village_panel(village: Village, world_position: Vector3) -> void:
 	
 	# Resources info - smaller
 	var info_label = Label.new()
-	info_label.text = "People: %d\nFood: %d\nWood: %d" % [village.people, village.food, village.wood]
+	info_label.text = "Tiles: %d\nPeople: %d\nFood: %d\nWood: %d" % [village.tile_count, village.people, village.food, village.wood]
 	info_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	info_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	info_label.add_theme_font_size_override("font_size", 12)
@@ -115,7 +115,7 @@ func _update_panel_positions() -> void:
 		var screen_pos = camera.unproject_position(world_pos)
 		
 		# Offset the panel to appear above the village
-		screen_pos.y -= 60  # Move up by 60 pixels (adjusted for larger panel)
+		screen_pos.y -= 70  # Move up by 70 pixels (adjusted for larger panel)
 		
 		# Center the panel on the screen position
 		var panel_size = data.panel.custom_minimum_size
@@ -124,4 +124,4 @@ func _update_panel_positions() -> void:
 		# Update the resource info (name stays the same)
 		var container = data.panel.get_child(0)
 		var info_label = container.get_child(1)
-		info_label.text = "People: %d\nFood: %d\nWood: %d" % [data.village.people, data.village.food, data.village.wood]
+		info_label.text = "Tiles: %d\nPeople: %d\nFood: %d\nWood: %d" % [data.village.tile_count, data.village.people, data.village.food, data.village.wood]

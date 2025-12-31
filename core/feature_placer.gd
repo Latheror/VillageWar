@@ -99,6 +99,7 @@ static func place_villages(tiles: Array) -> Array:
 					break
 			if not too_close:
 				random_tile.village_id = i + 1
+				random_tile.resource = Constants.ResourceType.NONE  # Clear any trees on village tile
 				var village_name = VILLAGE_NAMES[i] if i < VILLAGE_NAMES.size() else "Village %d" % (i + 1)
 				var village = Village.new(i + 1, Vector2(random_tile.x, random_tile.y), village_name)
 				villages.append(village)

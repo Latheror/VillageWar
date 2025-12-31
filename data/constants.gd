@@ -54,7 +54,8 @@ const FOREST_MAX_SIZE: int = 12    # Maximum tiles per forest patch
 enum ResourceType {
 	NONE,
 	FISH,
-	FOREST
+	FOREST,
+	FARM
 }
 
 enum Biome {
