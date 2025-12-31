@@ -34,7 +34,7 @@ static func place_forests(tiles: Array) -> void:
 			continue
 
 		# Chance to start a forest patch
-		if randf() < Constants.FOREST_SPAWN_CHANCE:
+		if randf() < Constants.FOREST_SEED_CHANCE:
 			# Determine patch size
 			var patch_size = randi() % (Constants.FOREST_MAX_SIZE - Constants.FOREST_MIN_SIZE + 1) + Constants.FOREST_MIN_SIZE
 
