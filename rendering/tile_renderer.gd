@@ -41,6 +41,8 @@ static func render_tile(parent_node: Node, x: int, y: int, tile_size: float, col
 		_draw_fish(parent_node, x, y, height)
 	if resource == Constants.ResourceType.FARM:
 		_draw_farm(parent_node, x, y, height)
+	if resource == Constants.ResourceType.FISHING_BOAT:
+		_draw_boat(parent_node, x, y, height)
 
 # -------------------------
 # Draw village laser
@@ -197,3 +199,45 @@ static func _draw_farm(parent_node: Node, x: int, y: int, tile_height: float) ->
 				base_z - half_tile + 0.2 + j * 0.2
 			)
 			parent_node.add_child(wheat)
+
+# -------------------------
+# Draw fishing boat
+# -------------------------
+static func _draw_boat(parent_node: Node, x: int, y: int, tile_height: float) -> void:
+	var base_x = x * Constants.TILE_SIZE
+	var base_z = y * Constants.TILE_SIZE
+	
+	# Create a simple boat hull using a box
+	var boat = MeshInstance3D.new()
+	var box_mesh = BoxMesh.new()
+	box_mesh.size = Vector3(1.5, 0.3, 0.6)  # boat shape
+	
+	var boat_material = StandardMaterial3D.new()
+	boat_material.albedo_color = Color(0.4, 0.2, 0.1)  # brown wood
+	boat.material_override = boat_material
+	boat.mesh = box_mesh
+	boat.position = Vector3(base_x, tile_height + 0.15, base_z)
+	parent_node.add_child(boat)
+	
+	# Add a mast with sail
+	var mast = MeshInstance3D.new()
+	var cylinder = CylinderMesh.new()
+	cylinder.top_radius = 0.02
+	cylinder.bottom_radius = 0.02
+	cylinder.height = 1.0
+	mast.mesh = cylinder
+	mast.material_override = boat_material
+	mast.position = Vector3(base_x, tile_height + 0.6, base_z)
+	parent_node.add_child(mast)
+	
+	# Sail
+	var sail = MeshInstance3D.new()
+	var plane = PlaneMesh.new()
+	plane.size = Vector2(0.8, 0.6)
+	var sail_material = StandardMaterial3D.new()
+	sail_material.albedo_color = Color(1.0, 1.0, 1.0)  # white sail
+	sail.material_override = sail_material
+	sail.mesh = plane
+	sail.position = Vector3(base_x, tile_height + 0.8, base_z)
+	sail.rotation_degrees = Vector3(0, 0, 0)  # flat
+	parent_node.add_child(sail)

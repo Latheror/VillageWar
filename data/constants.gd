@@ -55,7 +55,8 @@ enum ResourceType {
 	NONE,
 	FISH,
 	FOREST,
-	FARM
+	FARM,
+	FISHING_BOAT
 }
 
 enum Biome {
