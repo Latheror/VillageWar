@@ -1,3 +1,5 @@
+## Main scene orchestrator for VillageWar strategy game.
+## Handles map generation, rendering, camera control, and daily village actions.
 extends Node3D
 
 const Constants = preload("res://data/constants.gd")
@@ -19,6 +21,8 @@ var camera_speed: float = 20.0
 var zoom_speed: float = 10.0
 var camera_target: Vector3
 
+# ==================== Core Lifecycle ====================
+## Initialize map, rendering, camera, UI, and time manager.
 func _ready() -> void:
 	time_manager = TimeManager.new()
 	add_child(time_manager)
@@ -43,6 +47,9 @@ func _on_day_advanced() -> void:
 	process_village_actions()
 	village_ui.update_hud(time_manager.get_date(), time_manager.get_day())
 
+# ==================== Daily Processing ====================
+## Execute daily village actions and update UI.
+## Villages build, farm, cut wood, and manage population each day.
 func process_village_actions() -> void:
 	var any_changed = false
 	for village in villages:
@@ -74,9 +81,8 @@ func _process(delta: float) -> void:
 func _input(event: InputEvent) -> void:
 	_handle_zoom(event)
 
-# -------------------------
-# Map rendering
-# -------------------------
+# ==================== Rendering ====================
+## Clear and redraw all tiles, buildings, and villagers each frame.
 func _render_map() -> void:
 	# Clear existing mesh instances
 	for child in get_children():
@@ -95,9 +101,8 @@ func _render_map() -> void:
 			var world_z = pos.y * Constants.TILE_SIZE + Constants.TILE_SIZE / 2.0
 			TileRenderer._draw_human(self, world_x, world_z, 0.0, Color(0.9, 0.9, 0.9))
 
-# -------------------------
-# Camera setup
-# -------------------------
+# ==================== Camera Setup ====================
+## Configure camera parameters.
 func _setup_camera() -> void:
 	var cam = $Camera3D
 	cam.fov = 75.0
@@ -105,18 +110,16 @@ func _setup_camera() -> void:
 	cam.far = 500.0
 	# Initial camera position will be set by _update_camera_position()
 
-# -------------------------
-# Light setup
-# -------------------------
+# ==================== Lighting ====================
+## Setup directional light for the scene.
 func _setup_light() -> void:
 	var light = $DirectionalLight3D
 	light.transform.origin = Vector3(Constants.SIZE * Constants.TILE_SIZE / 2, 50, -Constants.SIZE * Constants.TILE_SIZE / 2)
 	light.rotation_degrees = Vector3(-45, 45, 0)
 	light.light_energy = 3.0
 
-# -------------------------
-# Village UI setup
-# -------------------------
+# ==================== UI Setup ====================
+## Create village info panels and HUD.
 func _setup_village_ui() -> void:
 	village_ui = VillageUI.new()
 	add_child(village_ui)
@@ -135,9 +138,8 @@ func _setup_village_ui() -> void:
 	# Update HUD with initial values
 	village_ui.update_hud(time_manager.get_date(), time_manager.get_day())
 
-# -------------------------
-# Camera controls
-# -------------------------
+# ==================== Camera Controls ====================
+## Handle camera movement and zoom from player input.
 func _handle_camera_movement(delta: float) -> void:
 	var move_vector = Vector3.ZERO
 	
@@ -164,14 +166,17 @@ func _handle_zoom(event: InputEvent) -> void:
 			camera_distance = min(200.0, camera_distance + zoom_speed)
 			_update_camera_position()
 
+## Advance game time by one day (called manually by UI button).
 func advance_day() -> void:
 	time_manager.advance_day()
 	village_ui.update_hud(time_manager.get_date(), time_manager.get_day())
 
+## Toggle automatic day advancement (pause/resume).
 func toggle_pause() -> void:
 	time_manager.toggle_pause()
 	village_ui.update_pause_button(time_manager.is_paused())
 
+## Update camera position based on distance, angle, and target.
 func _update_camera_position() -> void:
 	if camera:
 		# Calculate camera position based on distance and angle around the target

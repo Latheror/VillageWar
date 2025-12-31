@@ -1,3 +1,6 @@
+## Main orchestrator for procedural map generation.
+## Coordinates terrain generation, biome assignment, and feature placement.
+## Returns a dictionary with tiles array and villages array.
 class_name MapGenerator
 
 const Constants = preload("res://data/constants.gd")
@@ -7,6 +10,9 @@ const HeightGenerator = preload("res://core/height_generator.gd")
 const BiomeSystem = preload("res://core/biome_system.gd")
 const FeaturePlacer = preload("res://core/feature_placer.gd")
 
+## Generate a complete map with terrain, biomes, and villages.
+## Process: compute heights → scale heights → assign biomes → place features.
+## Returns: {"tiles": Array[Tile], "villages": Array[Village]}
 static func generate_map() -> Dictionary:
 	var tiles: Array = []
 	var villages: Array = []

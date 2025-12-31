@@ -1,10 +1,15 @@
+## Determines biome types based on terrain height.
+## Provides colors and rendering heights for each biome.
+## 8 biome types: deep water → snow peaks.
 class_name BiomeSystem
 
 const Constants = preload("res://data/constants.gd")
 
 # -------------------------
-# Determine biome based on height
+# Biome Determination
 # -------------------------
+## Determine biome type based on height value.
+## Higher heights = mountains; lower = water.
 static func determine_biome(height: float) -> int:
 	if height < Constants.DEEP_WATER_THRESHOLD:
 		return Constants.Biome.DEEP_WATER
@@ -22,8 +27,9 @@ static func determine_biome(height: float) -> int:
 		return Constants.Biome.SNOW
 
 # -------------------------
-# Get color for biome
+# Biome Rendering Properties
 # -------------------------
+## Get the display color for a biome type.
 static func get_biome_color(biome: int) -> Color:
 	match biome:
 		Constants.Biome.DEEP_WATER:
@@ -44,8 +50,9 @@ static func get_biome_color(biome: int) -> Color:
 			return Color(1.0, 0.0, 1.0)  # error
 
 # -------------------------
-# Get height for biome
+# Biome Mesh Heights
 # -------------------------
+## Get the flat mesh height for a biome (water is flat, mountains vary, etc).
 static func get_biome_height(biome: int) -> float:
 	match biome:
 		Constants.Biome.DEEP_WATER, Constants.Biome.WATER:

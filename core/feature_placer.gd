@@ -1,3 +1,5 @@
+## Places forests, villages, and resources on the map.
+## Handles forest patch generation, village spawning, and fish placement.
 class_name FeaturePlacer
 
 const Constants = preload("res://data/constants.gd")
@@ -10,9 +12,9 @@ const VILLAGE_NAMES = [
 	"Whisperwind"
 ]
 
-# -------------------------
-# Place forest patches on plain tiles as resources
-# -------------------------
+# ==================== Forest Placement ====================
+## Generate contiguous forest patches on plain tiles.
+## Forest patches grow outward from seed points using random neighbor selection.
 static func place_forests(tiles: Array) -> void:
 	# Get all plain tiles without existing resources
 	var plain_tiles: Array = []
@@ -71,9 +73,9 @@ static func place_forests(tiles: Array) -> void:
 			for tile in patch_tiles:
 				tile.resource = Constants.ResourceType.FOREST
 
-# -------------------------
-# Place villages on land tiles
-# -------------------------
+# ==================== Village Placement ====================
+## Spawn villages on plain tiles with minimum distance separation.
+## Initializes villages with starting resources (food, wood, people).
 static func place_villages(tiles: Array) -> Array:
 	var plain_tiles: Array = []
 	for tile in tiles:
@@ -104,9 +106,8 @@ static func place_villages(tiles: Array) -> Array:
 
 	return villages
 
-# -------------------------
-# Place resources on tiles
-# -------------------------
+# ==================== Resource Placement ====================
+## Add fish resources to water tiles probabilistically.
 static func place_resources(tiles: Array) -> void:
 	for tile in tiles:
 		# Place fish on water tiles

@@ -1,10 +1,12 @@
+## Renders 3D trees for forest tiles.
+## Creates simple trunk and foliage spheres at predefined positions within each forest tile.
 class_name ForestRenderer
 
 const Constants = preload("res://data/constants.gd")
 
-# -------------------------
-# Draw forest trees
-# -------------------------
+# ==================== Tree Rendering ====================
+## Draw 3 trees on a forest tile at fixed local positions.
+## Each tree consists of a brown trunk cylinder and green foliage sphere.
 static func draw_forest_trees(parent_node: Node, x: int, y: int, tile_height: float) -> void:
 	var tree_positions = [
 		Vector2(0.3, 0.3),

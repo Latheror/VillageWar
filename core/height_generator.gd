@@ -1,10 +1,14 @@
+## Generates raw terrain heights using Perlin noise with domain warping.
+## Applies edge falloff and detail layers to create natural-looking terrain.
 class_name HeightGenerator
 
 const Constants = preload("res://data/constants.gd")
 
 # -------------------------
-# Generate raw height for a tile
+# Height Computation
 # -------------------------
+## Compute raw height for a tile using noise, domain warping, and edge falloff.
+## Combines multiple noise layers to create varied, natural terrain.
 static func compute_raw_height(x: int, y: int, half: float, noise: FastNoiseLite) -> float:
 	# Edge mask
 	var cx: float = x - half
@@ -39,8 +43,10 @@ static func compute_raw_height(x: int, y: int, half: float, noise: FastNoiseLite
 	return height
 
 # -------------------------
-# Scale heights to ensure proper distribution
+# Height Scaling
 # -------------------------
+## Normalize heights across the entire map to ensure proper biome distribution.
+## Stretches height range to cover thresholds for deep water through snow peaks.
 static func scale_heights(raw_tiles: Array) -> void:
 	var heights: Array = []
 	for raw in raw_tiles:

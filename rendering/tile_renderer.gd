@@ -1,11 +1,13 @@
+## Renders all map tiles and their features (forests, farms, boats, houses, villagers).
+## Handles 3D mesh creation for terrain, resources, buildings, and people.
 class_name TileRenderer
 
 const Constants = preload("res://data/constants.gd")
 const ForestRenderer = preload("res://rendering/forest_renderer.gd")
 
-# -------------------------
-# Render a single tile
-# -------------------------
+# ==================== Main Tile Rendering ====================
+## Render a single tile with base mesh, biome features, and resources.
+## Creates visual representation of terrain, forests, buildings, and population.
 static func render_tile(parent_node: Node, x: int, y: int, tile_size: float, color: Color, height: float, biome: int, village_id: int = 0, resource: int = 0, villages: Array = []) -> void:
 	# Create the base tile mesh
 	var mesh_instance = MeshInstance3D.new()
@@ -44,9 +46,9 @@ static func render_tile(parent_node: Node, x: int, y: int, tile_size: float, col
 	if resource == Constants.ResourceType.FISHING_BOAT:
 		_draw_boat(parent_node, x, y, height)
 
-# -------------------------
-# Draw village laser
-# -------------------------
+# ==================== Feature Rendering ====================
+# --------- Village Indicators ---------
+## Draw a red laser beam above village center tile for easy identification.
 static func _draw_village_laser(parent_node: Node, x: int, y: int, tile_height: float) -> void:
 	var laser_instance = MeshInstance3D.new()
 	var cylinder_mesh = CylinderMesh.new()
@@ -74,9 +76,8 @@ static func _draw_village_laser(parent_node: Node, x: int, y: int, tile_height: 
 	laser_light.position = Vector3(x * Constants.TILE_SIZE, tile_height + 10.0, y * Constants.TILE_SIZE)
 	parent_node.add_child(laser_light)
 
-# -------------------------
-# Draw village house
-# -------------------------
+# --------- Housing ---------
+## Draw 3 small houses arranged in a triangle on a village-owned residential tile.
 static func _draw_village_house(parent_node: Node, x: int, y: int, tile_height: float) -> void:
 	var base_x = x * Constants.TILE_SIZE
 	var base_z = y * Constants.TILE_SIZE
@@ -127,9 +128,8 @@ static func _draw_village_house(parent_node: Node, x: int, y: int, tile_height: 
 		roof.rotation.y = rotation_y
 		parent_node.add_child(roof)
 
-# -------------------------
-# Draw fish resource
-# -------------------------
+# --------- Resources ---------
+## Draw fish as a simple capsule on water tiles.
 static func _draw_fish(parent_node: Node, x: int, y: int, tile_height: float) -> void:
 	# Create a simple fish shape using a capsule
 	var fish = MeshInstance3D.new()
@@ -152,9 +152,8 @@ static func _draw_fish(parent_node: Node, x: int, y: int, tile_height: float) ->
 	
 	parent_node.add_child(fish)
 
-# -------------------------
-# Draw farm
-# -------------------------
+# --------- Farms ---------
+## Draw a farm with fence posts at corners and yellow wheat rows covering the tile.
 static func _draw_farm(parent_node: Node, x: int, y: int, tile_height: float) -> void:
 	var base_x = x * Constants.TILE_SIZE
 	var base_z = y * Constants.TILE_SIZE
@@ -200,9 +199,8 @@ static func _draw_farm(parent_node: Node, x: int, y: int, tile_height: float) ->
 			)
 			parent_node.add_child(wheat)
 
-# -------------------------
-# Draw fishing boat
-# -------------------------
+# --------- Boats ---------
+## Draw a fishing boat with hull, mast, and sail on water tiles.
 static func _draw_boat(parent_node: Node, x: int, y: int, tile_height: float) -> void:
 	var base_x = x * Constants.TILE_SIZE
 	var base_z = y * Constants.TILE_SIZE
@@ -242,9 +240,9 @@ static func _draw_boat(parent_node: Node, x: int, y: int, tile_height: float) ->
 	sail.rotation_degrees = Vector3(0, 0, 0)  # flat
 	parent_node.add_child(sail)
 
-# -------------------------
-# Draw simple human worker
-# -------------------------
+# --------- Villagers ---------
+## Draw simple human figures (2 spheres) at world position.
+## Used to visualize where villagers are working or living.
 static func _draw_human(parent_node: Node, x: float, y: float, tile_height: float, color: Color = Color(0.9, 0.9, 0.9)) -> void:
 	# x and y are world coordinates (not tile indices)
 	var body = MeshInstance3D.new()
