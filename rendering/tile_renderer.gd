@@ -33,7 +33,7 @@ static func render_tile(parent_node: Node, x: int, y: int, tile_size: float, col
 			if village.id == village_id and village.position.x == x and village.position.y == y:
 				is_center = true
 				break
-		if resource != Constants.ResourceType.FARM:
+		if resource != Constants.ResourceType.FARM and resource != Constants.ResourceType.FISHING_BOAT:
 			_draw_village_house(parent_node, x, y, height)
 		if is_center:
 			_draw_village_laser(parent_node, x, y, height)
